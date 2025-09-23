@@ -1,0 +1,218 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Institute Dashboard</title>
+    <style>
+      :root {
+        --bg: #0b1220;
+        --panel: #0f172a;
+        --card: #0d1b33;
+        --glass: rgba(255,255,255,0.06);
+        --primary: #4ea8ff;
+        --primary-2: #7cc3ff;
+        --accent: #00e0ff;
+        --text: #eaf2ff;
+        --muted:#9fb3cc;
+        --border:#1f3355;
+      }
+      * { box-sizing: border-box; }
+      html, body { height: 100%; }
+      body { margin:0; font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial; background: radial-gradient(1200px 700px at 10% -10%, #0e1a33 0%, #0b1220 60%); color: var(--text); }
+
+      .bg-shapes::before, .bg-shapes::after { content:""; position: fixed; inset: -20%; z-index:-1; background: radial-gradient(600px 300px at 85% 10%, rgba(78,168,255,0.18), transparent 60%); animation: floatA 12s ease-in-out infinite alternate; }
+      .bg-shapes::after { background: radial-gradient(500px 260px at 5% 85%, rgba(0,224,255,0.14), transparent 60%); animation: floatB 14s ease-in-out infinite alternate; }
+      @keyframes floatA { from { transform: translateY(0);} to { transform: translateY(12px);} }
+      @keyframes floatB { from { transform: translateY(0);} to { transform: translateY(-14px);} }
+
+      .container { max-width: 1200px; margin: 0 auto; padding: 28px; }
+      .header { display:flex; align-items:center; justify-content:space-between; gap:12px; }
+      .title { display:flex; align-items:center; gap:14px; }
+      .logo { width:46px; height:46px; border-radius:14px; background:
+        conic-gradient(from 210deg, var(--primary), var(--accent), var(--primary-2), var(--primary));
+        box-shadow: 0 12px 40px rgba(78,168,255,0.35);
+        animation: spin 12s linear infinite paused;}
+      .logo:hover { animation-play-state: running; }
+      @keyframes spin { to { transform: rotate(360deg);} }
+      h1 { margin:0; font-size: 30px; letter-spacing: 0.3px; }
+      .sub { color: var(--muted); }
+
+      .toolbar { display:flex; gap:10px; flex-wrap:wrap; }
+      .btn { background: linear-gradient(180deg, var(--primary), #2c6fb3); color:white; border:none; border-radius: 12px; padding: 10px 14px; cursor:pointer; transition: transform .15s ease, box-shadow .15s ease; box-shadow: 0 8px 24px rgba(78,168,255,0.25); }
+      .btn:hover { transform: translateY(-1px); box-shadow: 0 12px 30px rgba(78,168,255,0.35); }
+
+      .stats { display:grid; grid-template-columns: repeat(3, 1fr); gap:12px; margin-top: 16px; }
+      @media (max-width: 960px) { .stats { grid-template-columns: 1fr; } }
+      .stat { background: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.02)); border: 1px solid var(--border); border-radius: 16px; padding: 16px; backdrop-filter: blur(8px); }
+      .stat .label { color: var(--muted); font-size: 13px; }
+      .stat .value { font-size: 24px; font-weight: 700; color: #ffffff; }
+
+      .grid { display:grid; grid-template-columns: 1.2fr 1fr; gap:14px; margin-top:16px; }
+      @media (max-width: 960px) { .grid { grid-template-columns: 1fr; } }
+      .card { background: linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.03)); border: 1px solid var(--border); border-radius: 16px; padding: 18px; box-shadow: 0 10px 40px rgba(0,0,0,0.25); backdrop-filter: blur(10px); }
+      .chip { display:inline-block; padding: 5px 12px; border-radius: 999px; background: rgba(78,168,255,0.15); color: var(--primary-2); font-weight:700; font-size:12px; letter-spacing: .3px; }
+      .muted { color: var(--muted); }
+
+      .insights { display:grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top:10px; }
+      @media (max-width: 960px) { .insights { grid-template-columns: 1fr; } }
+      .insight-item { background: linear-gradient(180deg, rgba(78,168,255,0.08), rgba(255,255,255,0.03)); border: 1px solid var(--border); border-radius: 14px; padding: 12px; display:flex; gap:12px; align-items:flex-start; }
+      .insight-icon { width: 12px; height: 12px; border-radius: 999px; background: var(--primary); box-shadow: 0 0 0 4px rgba(78,168,255,0.12); margin-top: 7px; }
+
+      .chart-grid { display:grid; grid-template-columns: 1fr; gap: 12px; }
+      .chart-card { background: rgba(0,0,0,0.15); border: 1px solid var(--border); border-radius: 16px; padding: 12px; }
+      canvas { width: 100% !important; height: auto !important; }
+      .legend { display:flex; flex-wrap: wrap; gap:8px; margin-top: 10px; }
+      .legend-item { display:flex; align-items:center; gap:6px; font-size: 13px; color: var(--muted); }
+      .dot { width:10px; height:10px; border-radius: 999px; }
+
+      .suggestions { display:grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+      @media (max-width: 960px) { .suggestions { grid-template-columns: 1fr; } }
+      .suggestion { background: linear-gradient(180deg, rgba(0,224,255,0.08), rgba(255,255,255,0.03)); border: 1px solid var(--border); border-radius: 14px; padding: 12px; position: relative; overflow: hidden; }
+      .suggestion::after { content:""; position:absolute; inset:0; background: radial-gradient(300px 120px at 110% -10%, rgba(78,168,255,.15), transparent 60%); pointer-events:none; }
+
+      .footer { margin-top: 20px; color: var(--muted); font-size: 14px; }
+
+      .ring { width: 90px; height: 90px; border-radius: 999px; background:
+        conic-gradient(var(--primary) calc(var(--val,60) * 1%), rgba(255,255,255,0.08) 0);
+        display:grid; place-items:center; font-weight:700; color:#fff; }
+      .ring span { font-size: 14px; }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  </head>
+  <body class="bg-shapes">
+    <div class="container">
+      <div class="header">
+        <div class="title">
+          <div class="logo"></div>
+          <div>
+            <h1>Institute Mental Health Dashboard</h1>
+            <div class="sub">Anonymous, aggregate view with trends and actionable guidance</div>
+          </div>
+        </div>
+        <div class="toolbar">
+          <a class="btn" href="/student_matching">View Matching</a>
+        </div>
+      </div>
+
+      {% if error %}
+        <div class="card" style="border-color:#b00020; color:#ffd9d9;">{{ error }}</div>
+      {% endif %}
+
+      <div class="stats">
+        <div class="stat">
+          <div class="label">Categories Identified</div>
+          <div class="value">{{ categories_identified }}</div>
+        </div>
+        <div class="stat">
+          <div class="label">Top Concern</div>
+          <div class="value">{{ top_concern }}</div>
+        </div>
+        <div class="stat" style="display:flex; align-items:center; gap:12px;">
+          <div class="ring" style="--val: {{ (categories|sum(attribute='percent'))|default(100, true) | round(0, 'floor') }}"><span>{{ (categories|sum(attribute='percent'))|default(100, true) | round(0, 'floor') }}%</span></div>
+          <div>
+            <div class="label">Coverage</div>
+            <div class="muted">Share of data categorized</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid">
+        <div class="card">
+          <div class="chip">Overall Summary</div>
+          {% if overall_points %}
+            <div class="insights">
+              {% for p in overall_points %}
+                <div class="insight-item">
+                  <div class="insight-icon"></div>
+                  <div>{{ p }}</div>
+                </div>
+              {% endfor %}
+            </div>
+          {% endif %}
+          {% if not overall_points %}
+            <p class="muted" style="margin-top:8px;">No data available.</p>
+          {% endif %}
+        </div>
+        <div class="card">
+          <div class="chip">Mental Health Distribution</div>
+          <div class="chart-grid">
+            <div class="chart-card">
+              <canvas id="pie"></canvas>
+            </div>
+            <div class="chart-card">
+              <canvas id="bar"></canvas>
+            </div>
+          </div>
+          <div class="legend" id="legend"></div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:14px;">
+        <div class="chip">Suggestions</div>
+        {% if suggestions %}
+          <div class="suggestions" style="margin-top:10px;">
+            {% for s in suggestions %}
+              <div class="suggestion">{{ s }}</div>
+            {% endfor %}
+          </div>
+        {% else %}
+          <p class="muted">No suggestions available.</p>
+        {% endif %}
+      </div>
+
+      <div class="footer">Data is aggregated; no student names or personal details are displayed.</div>
+    </div>
+
+    <script id="cats-data" type="application/json">{{ categories | tojson }}</script>
+    <script>
+      (function(){
+        const cats = JSON.parse(document.getElementById('cats-data').textContent);
+        const labels = cats.map(c => c.label);
+        const values = cats.map(c => c.count);
+        const colors = ['#4ea8ff','#7cc3ff','#9ed3ff','#c7e6ff','#2c6fb3','#1c4470','#00e0ff','#5bdfff'];
+
+        const pieCtx = document.getElementById('pie').getContext('2d');
+        if (labels.length) {
+          new Chart(pieCtx, {
+            type: 'doughnut',
+            data: { labels, datasets: [{ data: values, backgroundColor: colors.slice(0, labels.length), borderColor: '#0b1220', borderWidth: 2, hoverOffset: 8 }] },
+            options: {
+              responsive: true,
+              cutout: '58%',
+              plugins: {
+                legend: { display: false },
+                tooltip: { backgroundColor: 'rgba(13,27,51,0.95)', borderColor:'#163055', borderWidth:1, titleColor:'#eaf2ff', bodyColor:'#cfe2ff' }
+              },
+              animation: { animateRotate: true, animateScale: true }
+            }
+          });
+        }
+
+        const barCtx = document.getElementById('bar').getContext('2d');
+        if (labels.length) {
+          new Chart(barCtx, {
+            type: 'bar',
+            data: { labels, datasets: [{ label: 'Count', data: values, backgroundColor: colors.slice(0, labels.length), borderRadius: 8 }] },
+            options: { responsive: true, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { color:'#9fb3cc' }, grid: { color:'#1f3355' } }, x: { ticks: { color:'#9fb3cc' }, grid: { display:false } } } }
+          });
+        }
+
+        const legend = document.getElementById('legend');
+        labels.forEach((l, i) => {
+          const item = document.createElement('div');
+          item.className = 'legend-item';
+          const dot = document.createElement('span');
+          dot.className = 'dot';
+          dot.style.backgroundColor = colors[i % colors.length];
+          const text = document.createElement('span');
+          const percent = cats[i].percent ? ` (${cats[i].percent.toFixed(1)}%)` : '';
+          text.textContent = l + percent;
+          item.appendChild(dot); item.appendChild(text); legend.appendChild(item);
+        });
+      })();
+    </script>
+  </body>
+  </html>
+
+
