@@ -452,7 +452,9 @@ def extract_main_issue_from_summary(summary_text: str) -> str:
         return "Stress"
 
 
+"""Expose a module-level Flask app for WSGI servers (e.g., gunicorn)."""
+app = create_app()
+
 if __name__ == "__main__":
     # For local development
-    app = create_app()
     app.run(host="0.0.0.0", port=5000, debug=True)
